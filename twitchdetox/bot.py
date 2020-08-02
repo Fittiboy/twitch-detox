@@ -2,6 +2,7 @@
 import irc.bot
 import requests
 import json
+import time
 
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
@@ -12,7 +13,8 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         self.headers = {'Client-ID': client_id,
                         'Accept': 'application/vnd.twitchtv.v5+json'}
         self.keepalive = keepalive
-        self.reconnect = 1  # double every failed reconnection attmept
+        self.temp_log = []
+        self.lastlog = time.time()
 
         # Get the channel id, we will need this for v5 API calls
         url = 'https://api.twitch.tv/kraken/users?login=' + channel
@@ -28,6 +30,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                 username, username)
 
     def on_welcome(self, c, e):
+        """Join a channel."""
         print('Joining ' + self.channel)
 
         # You must request specific capabilities before you can use them
@@ -40,7 +43,9 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         self.reconnect = 1
 
     def on_pubmsg(self, c, e):
-        """Read incoming message and classify as toxic/non-toxic
+        """Read incoming message and classify as toxic/non-toxic.
+
+        Log incoming messages for manual labelling purposes.
 
         Additionally, turn the unnatural format of e.tags
         into a more workable dictionary, also containing a dictionary
@@ -67,11 +72,24 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
                   in badges_list_collection}
         # Update the badges tag for later use in commands.py
         e.tags['badges'] = badges
-        # Reloads the commands.py module, allowing for modification of
-        # existing commands while the bot is still running.
+
+        self.temp_log.append(e)
+
+        if time.time() - self.lastlog > 30:
+
+            with open('chat.log') as chat_log_file:
+                chat_log = json.load(chat_log_file)
+
+            chat_log += self.temp_log
+            self.temp_log = []
+            self.lastlog = time.time()
+
+            with open('chat.log', 'w') as chat_log_file:
+                json.dump(chat_log, chat_log_file)
 
 
 def main():
+    """Read the settings from settings.json and run the bot with these."""
     with open('settings.json') as settings_file:
         settings = json.load(settings_file)
     username = settings['username']
