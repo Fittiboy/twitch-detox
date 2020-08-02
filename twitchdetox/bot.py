@@ -1,3 +1,4 @@
+"""Bot that monitors the chat and reads the messages. Stores a chat log."""
 import irc.bot
 import requests
 import json
