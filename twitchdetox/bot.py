@@ -3,12 +3,12 @@ import irc.bot
 import requests
 import json
 import time
-import os.path.isfile
+from os.path import isfile
 
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
     def __init__(self, username, client_id, token, channel, keepalive=30):
-        if not os.path.isfile('chat.log'):
+        if not isfile('chat.log'):
             with open('chat.log', 'w') as _:
                 pass
 
