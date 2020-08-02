@@ -9,8 +9,8 @@ from os.path import isfile
 class TwitchBot(irc.bot.SingleServerIRCBot):
     def __init__(self, username, client_id, token, channel, keepalive=30):
         if not isfile('chat.log'):
-            with open('chat.log', 'w') as _:
-                pass
+            with open('chat.log', 'w') as chat_log_file:
+                json.dump([], chat_log_file)
 
         self.client_id = client_id
         self.token = token
