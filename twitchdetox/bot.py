@@ -31,7 +31,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         port = 6667
         print('Connecting to ' + server + ' on port ' + str(port) + '...')
         irc.bot.SingleServerIRCBot.__init__(
-                self, [(server, port, 'oauth:'+token)],
+                self, [(server, port, token)],
                 username, username)
 
     def on_welcome(self, c, e):
