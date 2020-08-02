@@ -78,10 +78,11 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         # Update the badges tag for later use in commands.py
         e.tags['badges'] = badges
 
-        self.temp_log.append(e)
+        log_entry = {'args': e.arguments,
+                     'tags': e.tags}
+        self.temp_log.append(log_entry)
 
         if time.time() - self.lastlog > 30:
-
             with open('chat.log') as chat_log_file:
                 chat_log = json.load(chat_log_file)
 
